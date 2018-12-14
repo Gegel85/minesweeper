@@ -12,11 +12,11 @@
 #include <macros.h>
 #include <utils.h>
 #include "globals.h"
+#include <fcntl.h>
 
 #if defined _WIN32 || defined __WIN32 || defined __WIN32__
 
 #include <windows.h>
-#include <fcntl.h>
 
 void	setSignalHandler()
 {

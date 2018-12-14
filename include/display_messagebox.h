@@ -45,6 +45,6 @@
 #define IDYES						    6
 #define IDNO						    7
 
-int	dispMsg(char *title, char *content, int variate);
+int	dispMsg(char *title, char *content, unsigned int variate);
 
 #endif //VEDA_DISPLAY_MESSAGEBOX_H

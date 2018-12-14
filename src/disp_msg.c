@@ -11,11 +11,12 @@ int	dispMsg(char *title, char *content, unsigned int variate)
 
 #include <SFML/Graphics.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include "macros.h"
 
 #define ICON_ERROR_PATH "data/error.png"
 
-int	dispMsg(char *title, char *content, unsigned variate)
+int	dispMsg(char *title, char *content, unsigned int variate)
 {
 	char			**buttons = NULL;
 	int			clicked = -1;

@@ -6,6 +6,7 @@
 #define MINESWEEPER_GAME_H
 
 #include <SFML/Graphics.h>
+#include <time.h>
 #include <stdbool.h>
 #include "array.h"
 #include "sprite.h"
