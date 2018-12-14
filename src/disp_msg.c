@@ -24,7 +24,7 @@ int	dispMsg(char *title, char *content, unsigned int variate)
 	sfVideoMode		mode = {700, 220, 32};
 	sfEvent			event;
 	sfRectangleShape	*rect = sfRectangleShape_create();
-	sfFont			*font = sfFont_createFromFile("data/fonts/arial.ttf");
+	sfFont			*font = sfFont_createFromFile("data/arial.ttf");
 	sfText			*text = sfText_create();
 	int			nbOfButtons = 0;
 	int			buttonClicked = 0;

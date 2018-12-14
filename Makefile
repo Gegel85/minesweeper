@@ -1,8 +1,11 @@
-NAME =	VEDA
+NAME =	minesweeper
 
-SRC =	main.c			\
-	globals.c		\
+SRC =	alloc.c			\
 	discord_rich_presence.c	\
+	disp_msg.c		\
+	game_loop.c		\
+	globals.c		\
+	main.c			\
 	sighandlers.c		\
 
 OBJ =	$(SRC:%.c=src/%.o)

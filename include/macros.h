@@ -51,7 +51,7 @@
 
 #define BOX_SIZE	(sfVector2f){24, 24}
 
-#define DEFAULT_GRID	(Grid){false, (sfVector2u){40, 40}, 250}
+#define DEFAULT_GRID	(Grid){false, (sfVector2u){40, 40}, 40}
 
 #define ALLOC_ERROR_MSG		"An error occurred when trying to reserve memory.\n\
 If you are playing on a low memory machine, this can cause this kind of error.\n\

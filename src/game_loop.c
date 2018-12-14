@@ -58,7 +58,7 @@ void	winGame()
 void	generateGrid(int x, int y)
 {
 	char	*array = *game.grid.grid;
-	int	remainingSpace = game.grid.size.x * game.grid.size.y - 1;
+	int	remainingSpace = game.grid.size.x * game.grid.size.y;
 	int	random;
 	int	index;
 	char	*buffer = concatf("Mines found: 0 of %i", game.grid.total);
@@ -206,9 +206,32 @@ void	changeBoxContent(int x, int y)
 	}
 }
 
+int	numberOfFlagsAround(int x, int y)
+{
+	int		nb = 0;
+	sfVector2u	size = game.grid.size;
+
+	nb += x > 0 &&					(game.grid.grid[x - 1][y] >> 2) == FLAG;
+	nb += x > 0 &&		y < size.y - 1 &&	(game.grid.grid[x - 1][y + 1] >> 2) == FLAG;
+	nb += x > 0 &&		y > 0 &&		(game.grid.grid[x - 1][y - 1] >> 2) == FLAG;
+	nb += x < size.x - 1 &&				(game.grid.grid[x + 1][y] >> 2) == FLAG;
+	nb += x < size.x - 1 &&	y < size.y - 1 &&	(game.grid.grid[x + 1][y + 1] >> 2) == FLAG;
+	nb += x < size.x - 1 &&	y > 0 &&		(game.grid.grid[x + 1][y - 1] >> 2) == FLAG;
+	nb += 			y < size.y - 1 &&	(game.grid.grid[x][y + 1] >> 2) == FLAG;
+	nb += 			y > 0 &&		(game.grid.grid[x][y - 1] >> 2) == FLAG;
+	return nb;
+}
+
 void	manageMouseClick(sfMouseButtonEvent *event)
 {
+	static	sfClock	*clock = NULL;
+
+	if (!clock)
+		clock = sfClock_create();
 	if (game.grid.isGenerated && game.grid.grid[(int)(event->x / BOX_SIZE.x)][(int)(event->y / BOX_SIZE.y)] & OPENED) {
+		if (sfTime_asSeconds(sfClock_getElapsedTime(clock)) < 0.5 && numberOfFlagsAround(event->x / BOX_SIZE.x, event->y / BOX_SIZE.y) == game.grid.grid[(int)(event->x / BOX_SIZE.x)][(int)(event->y / BOX_SIZE.y)] >> 2)
+			openAdjacentBoxs(event->x / BOX_SIZE.x, event->y / BOX_SIZE.y);
+		sfClock_restart(clock);
 	} else {
 		if (
 			event->button == sfMouseLeft &&
