@@ -31,13 +31,31 @@ enum	content {	//The content of a grid box
 	DIFFUSED_BOMB,
 };
 
+enum	directions {
+	NONE,
+	TOP_LEFT,
+	TOP,
+	TOP_RIGHT,
+	RIGHT,
+	BOTTOM_RIGHT,
+	BOTTOM,
+	BOTTOM_LEFT,
+	LEFT
+};
+
 struct	Grid {
-	bool		isGenerated;	//Has the game grid been generated or not
+	bool		jumpingMines;	//Whether it is a regular game or a jumping mines game
 	sfVector2u	size;		//The size of the grid
 	int		total;		//The total number of mines
 	int		flagsPlaced;	//The number of flag the player has placed
 	int		openedBoxes;	//The number of boxes openned in the grid
 	char		**grid;		//The grid itself
+	bool		isGenerated;	//Has the game grid been generated or not
 };
+
+enum	directions	getCorrespondingDirection(int x, int y, int dir);
+void			changeBoxContent(int x, int y);
+int			numberOfFlagsAround(int x, int y);
+void		openAdjacentBoxs(int x, int y);
 
 #endif //MINESWEEPER_GRID_H

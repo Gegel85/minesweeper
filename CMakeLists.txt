@@ -44,7 +44,7 @@ add_executable(
 	include/discord_rp.h
 	include/display_messagebox.h
 	src/disp_msg.c
-	include/utils.h src/game_loop.c)
+	include/utils.h src/game_loop.c src/grid_mgr.c)
 
 target_link_libraries(
 	${PROJECT_NAME}
