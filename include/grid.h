@@ -49,7 +49,7 @@ struct	Grid {
 	sfVector2f	boxSize;	//The size of a box
 	int		total;		//The total number of mines
 	int		flagsPlaced;	//The number of flag the player has placed
-	int		openedBoxes;	//The number of boxes openned in the grid
+	unsigned	openedBoxes;	//The number of boxes opened in the grid
 	char		**grid;		//The grid itself
 	bool		isGenerated;	//Has the game grid been generated or not
 };
@@ -57,6 +57,6 @@ struct	Grid {
 enum	directions	getCorrespondingDirection(int x, int y, int dir);
 void			changeBoxContent(int x, int y);
 int			numberOfFlagsAround(int x, int y);
-void		openAdjacentBoxs(int x, int y);
+void			openAdjacentBoxs(int x, int y);
 
 #endif //MINESWEEPER_GRID_H

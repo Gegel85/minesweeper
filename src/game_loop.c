@@ -14,7 +14,7 @@
 enum	directions	getCorrespondingDirection(int x, int y, int dir)
 {
 	enum	directions	direction = 0;
-	sfVector2u		size = game.grid.size;
+	sfVector2i		size = *(sfVector2i *)&game.grid.size;
 
 	direction += x > 0 &&		y > 0 &&		!(game.grid.grid[x - 1][y - 1] & MINE) &&	!(game.grid.grid[x - 1][y - 1] >> 1) ? dir-- > 0 : dir > 0;
 	direction += 			y > 0 &&		!(game.grid.grid[x][y - 1] & MINE) &&		!(game.grid.grid[x    ][y - 1] >> 1) ? dir-- > 0 : dir > 0;
@@ -85,8 +85,8 @@ void displayShadedRect(int additionalLayers, sfColor color, sfVector2f pos, sfVe
 
 void	displayGrid()
 {
-	for (int x = 0; x < game.grid.size.x; x++) {
-		for (int y = 0; y < game.grid.size.y; y++) {
+	for (unsigned x = 0; x < game.grid.size.x; x++) {
+		for (unsigned y = 0; y < game.grid.size.y; y++) {
 			sfRectangleShape_setOutlineThickness(game.resources.rect, 1);
 			sfRectangleShape_setOutlineColor(game.resources.rect, (sfColor){0, 0, 0, 255});
 			if (game.grid.grid[x][y] & OPENED) {

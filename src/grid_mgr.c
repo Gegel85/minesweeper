@@ -18,7 +18,7 @@ void	endGame()
 	int	errors = 0;
 	char	*buffer;
 
-	for (int i = 0; i < game.grid.size.x * game.grid.size.y; i++) {
+	for (unsigned i = 0; i < game.grid.size.x * game.grid.size.y; i++) {
 		if (!(array[i] & OPENED) && array[i] >> 2 != FLAG && array[i] & MINE) {
 			array[i] += (MINE_REMAINING << 2) - ((array[i] >> 2) << 2);
 			array[i] += OPENED;
@@ -39,8 +39,8 @@ void	winGame()
 {
 	char	*buffer;
 
-	for (int x = 0; x < game.grid.size.x; x++)
-		for (int y = 0; y < game.grid.size.y; y++)
+	for (unsigned x = 0; x < game.grid.size.x; x++)
+		for (unsigned y = 0; y < game.grid.size.y; y++)
 			if (!(game.grid.grid[x][y] & OPENED)) {
 				if (game.grid.grid[x][y] >> 2 != FLAG) {
 					game.grid.grid[x][y] -= (game.grid.grid[x][y] << 2) >> 2;
@@ -83,7 +83,7 @@ void	generateGrid(int x, int y)
 int	getNbOfMinesNear(int x, int y)
 {
 	int		nb = 0;
-	sfVector2u	size = game.grid.size;
+	sfVector2i	size = *(sfVector2i *)&game.grid.size;
 
 	nb += x > 0 &&					game.grid.grid[x - 1][y] & MINE;
 	nb += x > 0 &&		y < size.y - 1 &&	game.grid.grid[x - 1][y + 1] & MINE;
@@ -99,7 +99,7 @@ int	getNbOfMinesNear(int x, int y)
 int	getNbOfFreeBoxsAround(int x, int y)
 {
 	int		nb = 0;
-	sfVector2u	size = game.grid.size;
+	sfVector2i	size = *(sfVector2i *)&game.grid.size;
 
 	nb += x > 0 &&					!(game.grid.grid[x - 1][y] & MINE) &&		!(game.grid.grid[x - 1][y] >> 1);
 	nb += x > 0 &&		y < size.y - 1 &&	!(game.grid.grid[x - 1][y + 1] & MINE) &&	!(game.grid.grid[x - 1][y + 1] >> 1);
@@ -114,7 +114,7 @@ int	getNbOfFreeBoxsAround(int x, int y)
 
 void	openAdjacentBoxs(int x, int y)
 {
-	sfVector2u	size = game.grid.size;
+	sfVector2i	size = *(sfVector2i *)&game.grid.size;
 	char		elem = game.grid.grid[x][y];
 
 	if (
@@ -226,8 +226,8 @@ void	moveMine(int x, int y, enum directions dir)
 
 void	updateBoxesIndicator()
 {
-	for (int x = 0; x < game.grid.size.x; x++) {
-		for (int y = 0; y < game.grid.size.x; y++) {
+	for (unsigned x = 0; x < game.grid.size.x; x++) {
+		for (unsigned y = 0; y < game.grid.size.x; y++) {
 			if (game.grid.grid[x][y] & OPENED && !(game.grid.grid[x][y] & MINE)) {
 				game.grid.grid[x][y] -= (game.grid.grid[x][y] >> 2) << 2;
 				game.grid.grid[x][y] += getNbOfMinesNear(x, y) << 2;
@@ -245,8 +245,8 @@ void	changeBoxContent(int x, int y)
 		free(buffer);
 		game.grid.grid[x][y] += FLAG << 2;
 		if (game.grid.flagsPlaced == game.grid.total) {
-			for (int x = 0; x < game.grid.size.x; x++)
-				for (int y = 0; y < game.grid.size.y; y++)
+			for (unsigned x = 0; x < game.grid.size.x; x++)
+				for (unsigned y = 0; y < game.grid.size.y; y++)
 					if (!(game.grid.grid[x][y] & OPENED) && game.grid.grid[x][y] >> 2 != FLAG) {
 						game.grid.isGenerated = true;
 						openGridBox(x, y);
@@ -266,7 +266,7 @@ void	changeBoxContent(int x, int y)
 int	numberOfFlagsAround(int x, int y)
 {
 	int		nb = 0;
-	sfVector2u	size = game.grid.size;
+	sfVector2i	size = *(sfVector2i *)&game.grid.size;
 
 	nb += x > 0 &&		y > 0 &&		(game.grid.grid[x - 1][y - 1] >> 2) == FLAG;
 	nb += 			y > 0 &&		(game.grid.grid[x][y - 1] >> 2) == FLAG;
@@ -283,8 +283,8 @@ void	moveMines()
 {
 	int	random;
 
-	for (int x = 0; x < game.grid.size.x; x++) {
-		for (int y = 0; y < game.grid.size.x; y++) {
+	for (unsigned x = 0; x < game.grid.size.x; x++) {
+		for (unsigned y = 0; y < game.grid.size.x; y++) {
 			if (game.grid.grid[x][y] & MINE && !(game.grid.grid[x][y] >> 2)) {
 				random = rand() % (getNbOfFreeBoxsAround(x, y) + 1);
 				moveMine(x, y, getCorrespondingDirection(x, y, random));

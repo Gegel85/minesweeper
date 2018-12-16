@@ -26,6 +26,7 @@ struct	Resources {
 };
 
 struct	game_s {
+	bool		debug;		//If in debug mode or not
 	Grid		grid;		//The grid
 	Resources	resources;	//Loaded
 	Array		buttons;	//All buttons loaded

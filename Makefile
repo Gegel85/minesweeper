@@ -5,6 +5,7 @@ SRC =	alloc.c			\
 	disp_msg.c		\
 	game_loop.c		\
 	globals.c		\
+	grid_mgr.c		\
 	main.c			\
 	sighandlers.c		\
 

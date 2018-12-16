@@ -58,16 +58,61 @@ void	closeConsole(bool debug)
 		freopen("last.log", "w", stdout);//Redirect stdout to 'last.log'
 
 #else
-	(void)debug;
+	if (!debug)
+		freopen("last.log", "w", stdout);//Redirect stdout to 'last.log'
 #endif
 }
 
-void	getGridInfos(Grid *grid)
+void	getGridInfos(int argc, char **args, Grid *grid)
 {
-	int	fd = open("gridInfos.txt", O_RDONLY);
-	size_t	n = 1;
+	int	fd;
+	char	*filePath = "gridInfos.txt";
+	int	buffer;
 
 	*grid = DEFAULT_GRID;
+	if (argc == 2 + game.debug)
+		filePath = args[1 + game.debug];
+	else if (argc == 5 + game.debug || argc == 7 + game.debug) {
+		grid->jumpingMines = !strcmp(args[1 + game.debug], "jumping");
+		buffer = atoi(args[2 + game.debug]);
+		if (buffer > 0 && buffer < 160)
+			grid->size.x = buffer;
+		else {
+			printf("%s: Invalid parameter #%i: %s is not a valid number in range 1-159\n", ERROR_BEG, 2 + game.debug, args[2 + game.debug]);
+			exit(EXIT_FAILURE);
+		}
+		buffer = atoi(args[3 + game.debug]);
+		if (buffer > 0 && buffer < 160)
+			grid->size.y = buffer;
+		else {
+			printf("%s: Invalid parameter #%i: %s is not a valid number in range 1-159\n", ERROR_BEG, 3 + game.debug, args[3 + game.debug]);
+			exit(EXIT_FAILURE);
+		}
+		buffer = atoi(args[4 + game.debug]);
+		if (buffer > 0 && buffer < grid->size.x * grid->size.y)
+			grid->total = buffer;
+		else {
+			printf("%s: Invalid parameter #%i: %s is not a valid number in range 1-%u\n", ERROR_BEG, 4 + game.debug, args[4 + game.debug], grid->size.x * grid->size.y);
+			exit(EXIT_FAILURE);
+		}
+		if (argc == 7 + game.debug) {
+			buffer = atoi(args[5 + game.debug]);
+			if (buffer >= 8 && buffer <= 128)
+				grid->boxSize.x = buffer;
+			else {
+				printf("%s: Invalid parameter #%i: %s is not a valid number in range 8-128\n", ERROR_BEG, 5 + game.debug, args[5 + game.debug]);
+				exit(EXIT_FAILURE);
+			}
+			buffer = atoi(args[6 + game.debug]);
+			if (buffer >= 8 && buffer <= 128)
+				grid->boxSize.y = buffer;
+			else {
+				printf("%s: Invalid parameter #%i: %s is not a valid number in range 8-128\n", ERROR_BEG, 6 + game.debug, args[6 + game.debug]);
+				exit(EXIT_FAILURE);
+			}
+		}
+	}
+	fd = open(filePath, O_RDONLY);
 	if (fd < 0) {
 		printf("%s: Cannot load grid infos. Loading default infos...\n", ERROR_BEG);
 		return;
@@ -79,19 +124,21 @@ void	allocGrid(Grid *grid)
 	grid->grid = my_malloc(grid->size.x * sizeof(*grid->grid));				//We create a double array
 	*grid->grid = my_malloc(grid->size.x * grid->size.y * sizeof(**grid->grid));		//We reserve all the memory we need
 	memset(*grid->grid, NO_MINE, grid->size.x * grid->size.y * sizeof(**grid->grid));	//We init the whole grid to the NO_MINE state
-	for (int i = 0; i < grid->size.x; i++)							//Now we split the big chunk of memory
+	for (unsigned i = 0; i < grid->size.x; i++)							//Now we split the big chunk of memory
 		grid->grid[i] = &(*grid->grid)[i * grid->size.y];				//To be used as a double array later
 }
 
-void	initGame()
+void	initGame(bool debug, int argc, char **args)
 {
 	sfVideoMode	mode = sfVideoMode_getDesktopMode();
+	sfVector2u	size;
 
 	memset(&game, 0, sizeof(game));
 	updateDiscordPresence("Loading game", NULL, 0, false, "icon", NULL);
+	game.debug = debug;
 
 	printf("%s: Creating grid informations\n", INFO_BEG);
-	getGridInfos(&game.grid);
+	getGridInfos(argc, args, &game.grid);
 	allocGrid(&game.grid);
 
 	printf("%s: Loading render objects\n", INFO_BEG);
@@ -107,8 +154,10 @@ void	initGame()
 	mode.width = game.grid.size.x * BOX_SIZE.x;
 	mode.height = game.grid.size.y * BOX_SIZE.y;
 	game.resources.window = sfRenderWindow_create(mode, "Minesweeper", sfClose | sfTitlebar, NULL);
-	if (game.resources.icon)
-		sfRenderWindow_setIcon(game.resources.window, 32, 32, sfImage_getPixelsPtr(game.resources.icon));
+	if (game.resources.icon) {
+		size = sfImage_getSize(game.resources.icon);
+		sfRenderWindow_setIcon(game.resources.window, size.x, size.y, sfImage_getPixelsPtr(game.resources.icon));
+	}
 }
 
 void	destroyGameElements()
@@ -122,12 +171,11 @@ void	destroyGameElements()
 
 int	main(int argc, char **args)
 {
-	bool	debug = true;//(argc > 1 && !strcmp("debug", args[1]));
-
+	game.debug = true;//(argc > 1 && !strcmp("debug", args[1]));
 	setSignalHandler();
-	closeConsole(debug);
+	closeConsole(game.debug);
 	initDiscordRichPresence();
-	initGame();
+	initGame(game.debug, argc, args);
 	launchGame();
 	destroyGameElements();
 	printf("%s: Goodbye !\n", INFO_BEG);
