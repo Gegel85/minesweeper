@@ -63,10 +63,26 @@ void	closeConsole(bool debug)
 #endif
 }
 
+Sprite	loadSprite(char *path)
+{
+	Sprite	sprite;
+
+	printf("%s: Loading file '%s'\n", INFO_BEG, path);
+	memset(&sprite, 0, sizeof(sprite));
+	sprite.path = path;
+	sprite.texture = sfTexture_createFromFile(path, NULL);
+	if (sprite.texture) {
+		sprite.sprite = sfSprite_create();
+		sfSprite_setTexture(sprite.sprite, sprite.texture, true);
+	} else
+		printf("%s: Cannot load '%s'\n", ERROR_BEG, path);
+	return sprite;
+}
+
 void	getGridInfos(int argc, char **args, Grid *grid)
 {
 	int	fd;
-	char	*filePath = "gridInfos.txt";
+	char	*filePath = "gridInfos.json";
 	int	buffer;
 
 	*grid = DEFAULT_GRID;
@@ -85,29 +101,29 @@ void	getGridInfos(int argc, char **args, Grid *grid)
 		if (buffer > 0 && buffer < 160)
 			grid->size.y = buffer;
 		else {
-			printf("%s: Invalid parameter #%i: %s is not a valid number in range 1-159\n", ERROR_BEG, 3 + game.debug, args[3 + game.debug]);
+			printf("%s: Invalid parameter #%i: '%s' is not a valid number in range 1-159\n", ERROR_BEG, 3 + game.debug, args[3 + game.debug]);
 			exit(EXIT_FAILURE);
 		}
 		buffer = atoi(args[4 + game.debug]);
 		if (buffer > 0 && buffer < grid->size.x * grid->size.y)
 			grid->total = buffer;
 		else {
-			printf("%s: Invalid parameter #%i: %s is not a valid number in range 1-%u\n", ERROR_BEG, 4 + game.debug, args[4 + game.debug], grid->size.x * grid->size.y);
+			printf("%s: Invalid parameter #%i: '%s' is not a valid number in range 1-%u\n", ERROR_BEG, 4 + game.debug, args[4 + game.debug], grid->size.x * grid->size.y);
 			exit(EXIT_FAILURE);
 		}
 		if (argc == 7 + game.debug) {
 			buffer = atoi(args[5 + game.debug]);
-			if (buffer >= 8 && buffer <= 128)
+			if (buffer >= 16 && buffer <= 128)
 				grid->boxSize.x = buffer;
 			else {
-				printf("%s: Invalid parameter #%i: %s is not a valid number in range 8-128\n", ERROR_BEG, 5 + game.debug, args[5 + game.debug]);
+				printf("%s: Invalid parameter #%i: '%s' is not a valid number in range 16-128\n", ERROR_BEG, 5 + game.debug, args[5 + game.debug]);
 				exit(EXIT_FAILURE);
 			}
 			buffer = atoi(args[6 + game.debug]);
-			if (buffer >= 8 && buffer <= 128)
+			if (buffer >= 16 && buffer <= 128)
 				grid->boxSize.y = buffer;
 			else {
-				printf("%s: Invalid parameter #%i: %s is not a valid number in range 8-128\n", ERROR_BEG, 6 + game.debug, args[6 + game.debug]);
+				printf("%s: Invalid parameter #%i: '%s' is not a valid number in range 16-128\n", ERROR_BEG, 6 + game.debug, args[6 + game.debug]);
 				exit(EXIT_FAILURE);
 			}
 		}
@@ -137,7 +153,7 @@ void	initGame(bool debug, int argc, char **args)
 	updateDiscordPresence("Loading game", NULL, 0, false, "icon", NULL);
 	game.debug = debug;
 
-	printf("%s: Creating grid informations\n", INFO_BEG);
+	printf("%s: Creating grid information\n", INFO_BEG);
 	getGridInfos(argc, args, &game.grid);
 	allocGrid(&game.grid);
 
@@ -150,10 +166,21 @@ void	initGame(bool debug, int argc, char **args)
 	printf("%s: Loading window icon\n", INFO_BEG);
 	game.resources.icon = sfImage_createFromFile(ICON_PATH);
 
+	printf("%s: Loading sprites\n", INFO_BEG);
+	game.resources.sprite.length = sizeof(SPRITES) / sizeof(*SPRITES);
+	game.resources.sprite.content = my_malloc(game.resources.sprite.length);
+	for (unsigned i = 0; i < sizeof(SPRITES) / sizeof(*SPRITES); i++) {
+		loaded_sprites[i] = loadSprite(SPRITES[i].path);
+		loaded_sprites[i].rect.width = SPRITES[i].size.x;
+		loaded_sprites[i].rect.height = SPRITES[i].size.y;
+	}
+
 	printf("%s: Opening game window\n", INFO_BEG);
 	mode.width = game.grid.size.x * BOX_SIZE.x;
 	mode.height = game.grid.size.y * BOX_SIZE.y;
 	game.resources.window = sfRenderWindow_create(mode, "Minesweeper", sfClose | sfTitlebar, NULL);
+
+	printf("%s: Setting window icon\n", INFO_BEG);
 	if (game.resources.icon) {
 		size = sfImage_getSize(game.resources.icon);
 		sfRenderWindow_setIcon(game.resources.window, size.x, size.y, sfImage_getPixelsPtr(game.resources.icon));
@@ -171,7 +198,7 @@ void	destroyGameElements()
 
 int	main(int argc, char **args)
 {
-	game.debug = true;//(argc > 1 && !strcmp("debug", args[1]));
+	game.debug = (argc > 1 && !strcmp("debug", args[1]));
 	setSignalHandler();
 	closeConsole(game.debug);
 	initDiscordRichPresence();

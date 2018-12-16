@@ -93,7 +93,7 @@ void	displayGrid()
 				displayShadedRect(0, BG_COLORS[game.grid.grid[x][y] >> 2], (sfVector2f){x * BOX_SIZE.x, y * BOX_SIZE.y}, BOX_SIZE);
 			} else
 				displayShadedRect(8, (sfColor){155, 155, 155, 255}, (sfVector2f){x * BOX_SIZE.x, y * BOX_SIZE.y}, BOX_SIZE);
-			if (game.grid.grid[x][y] >> 2) {
+			if (game.grid.grid[x][y] >> 2 && !loaded_sprites[OBJECTS_SPRITE].sprite) {
 				char *buffer = concatf("%c", CHARACTERS[(game.grid.grid[x][y] >> 2) - 1]);
 				sfText_setString(game.resources.text, buffer);
 				sfText_setColor(game.resources.text, COLORS[(game.grid.grid[x][y] >> 2) - 1]);
@@ -101,6 +101,9 @@ void	displayGrid()
 				sfText_setPosition(game.resources.text, (sfVector2f){x * BOX_SIZE.x + 5, y * BOX_SIZE.y +1});
 				sfRenderWindow_drawText(game.resources.window, game.resources.text, NULL);
 				free(buffer);
+			} else if (game.grid.grid[x][y] >> 2) {
+				setObjectRect(game.grid.grid[x][y] >> 2);
+				displaySprite(loaded_sprites[OBJECTS_SPRITE], x * BOX_SIZE.x, y * BOX_SIZE.y);
 			}
 		}
 	}
