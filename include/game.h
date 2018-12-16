@@ -22,6 +22,7 @@ struct	Resources {
 	sfText		*text;	//Text object
 	sfFont		*font;	//Font loaded
 	Array		sprite;	//All sprites loaded
+	sfImage		*icon;	//The window icon
 };
 
 struct	game_s {
@@ -29,7 +30,7 @@ struct	game_s {
 	Resources	resources;	//Loaded
 	Array		buttons;	//All buttons loaded
 	Array		slider;		//All slider loaded
-	time_t		start;
+	time_t		start;		//The timestamp at which the game started
 };
 
 #endif //MINESWEEPER_GAME_H

@@ -85,7 +85,7 @@ void	allocGrid(Grid *grid)
 
 void	initGame()
 {
-	sfVideoMode	mode = {640, 480, 32};
+	sfVideoMode	mode = sfVideoMode_getDesktopMode();
 
 	memset(&game, 0, sizeof(game));
 	updateDiscordPresence("Loading game", NULL, 0, false, "icon", NULL);
@@ -100,10 +100,15 @@ void	initGame()
 	game.resources.text = sfText_create();
 	sfText_setFont(game.resources.text, game.resources.font);
 
+	printf("%s: Loading window icon\n", INFO_BEG);
+	game.resources.icon = sfImage_createFromFile(ICON_PATH);
+
 	printf("%s: Opening game window\n", INFO_BEG);
 	mode.width = game.grid.size.x * BOX_SIZE.x;
 	mode.height = game.grid.size.y * BOX_SIZE.y;
 	game.resources.window = sfRenderWindow_create(mode, "Minesweeper", sfClose | sfTitlebar, NULL);
+	if (game.resources.icon)
+		sfRenderWindow_setIcon(game.resources.window, 32, 32, sfImage_getPixelsPtr(game.resources.icon));
 }
 
 void	destroyGameElements()
@@ -117,7 +122,7 @@ void	destroyGameElements()
 
 int	main(int argc, char **args)
 {
-	bool	debug = true;//(argc == 2 && !strcmp("debug", args[1]));
+	bool	debug = true;//(argc > 1 && !strcmp("debug", args[1]));
 
 	setSignalHandler();
 	closeConsole(debug);
