@@ -97,9 +97,8 @@ void	displayGrid()
 				char *buffer = concatf("%c", CHARACTERS[(game.grid.grid[x][y] >> 2) - 1]);
 				sfText_setString(game.resources.text, buffer);
 				sfText_setColor(game.resources.text, COLORS[(game.grid.grid[x][y] >> 2) - 1]);
-				sfText_setCharacterSize(game.resources.text, 15);
-				sfText_setPosition(game.resources.text,
-						   (sfVector2f){x * BOX_SIZE.x + 8, y * BOX_SIZE.y + 1});
+				sfText_setCharacterSize(game.resources.text, 10);
+				sfText_setPosition(game.resources.text, (sfVector2f){x * BOX_SIZE.x + 5, y * BOX_SIZE.y +1});
 				sfRenderWindow_drawText(game.resources.window, game.resources.text, NULL);
 				free(buffer);
 			}

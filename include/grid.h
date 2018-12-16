@@ -46,6 +46,7 @@ enum	directions {
 struct	Grid {
 	bool		jumpingMines;	//Whether it is a regular game or a jumping mines game
 	sfVector2u	size;		//The size of the grid
+	sfVector2f	boxSize;	//The size of a box
 	int		total;		//The total number of mines
 	int		flagsPlaced;	//The number of flag the player has placed
 	int		openedBoxes;	//The number of boxes openned in the grid

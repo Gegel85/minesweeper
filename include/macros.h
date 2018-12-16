@@ -49,9 +49,11 @@
 
 #define CHARACTERS	"12345678XXFF?X"
 
-#define BOX_SIZE	(sfVector2f){24, 24}
+#define BOX_SIZE	game.grid.boxSize
 
-#define DEFAULT_GRID	(Grid){true, (sfVector2u){40, 40}, 250}
+#define ICON_PATH	"data/icon.png"
+
+#define DEFAULT_GRID	(Grid){false, (sfVector2u){40, 40}, (sfVector2f){16, 16}, 250}
 
 #define ALLOC_ERROR_MSG		"An error occurred when trying to reserve memory.\n\
 If you are playing on a low memory machine, this can cause this kind of error.\n\
