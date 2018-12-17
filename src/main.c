@@ -13,10 +13,13 @@
 #include <utils.h>
 #include "globals.h"
 #include <fcntl.h>
+#include <context.h>
 
 #if defined _WIN32 || defined __WIN32 || defined __WIN32__
 
 #include <windows.h>
+#include <configParser.h>
+#include <concatf.h>
 
 void	setSignalHandler()
 {
@@ -79,10 +82,98 @@ Sprite	loadSprite(char *path)
 	return sprite;
 }
 
+bool	loadGridJson(char *path, Grid *grid)
+{
+	ParserResult	result = Parser_parseFile(path, NULL);
+	char		*buffer;
+	char		temp[32];
+	Context		context;
+
+	if (result.error) {
+		printf("%s: %s: %s\n", ERROR_BEG, path, result.error);
+		buffer = concatf("Error: Cannot load file %s: %s\nMore information can be found in the log file\n", path, result.error);
+		dispMsg("Loading error", buffer, MB_OK | MB_ICONERROR);
+		free(buffer);
+		return false;
+	} else if (result.type != ParserObjType) {
+		printf("%s: %s: Invalid type\n", ERROR_BEG, path);
+		buffer = concatf("Error: Cannot load file %s: Invalid type\n", path, result.error);
+		dispMsg("Loading error", buffer, MB_OK | MB_ICONERROR);
+		free(buffer);
+		Parser_destroyData(result.data, result.type);
+		return false;
+	}
+
+	if (setjmp(context.jumpBuffer)) {
+		Parser_destroyData(result.data, result.type);
+		printf("%s: %s: %s\n", ERROR_BEG, path, context.error);
+		buffer = concatf(
+			"Error: File '%s' contains invalid data:\n%s\n",
+			path,
+			context.error
+		);
+		dispMsg("Settings Error", buffer, MB_OK | MB_ICONERROR);
+		free(buffer);
+		return false;
+	}
+
+	context.onMissing = LONG_JUMP;
+	context.onInvalidType = LONG_JUMP;
+	context.onUseFail = LONG_JUMP;
+	context.object = result.data;
+
+	memset(temp, 0, sizeof(temp));
+	context.data = temp;
+	context.index = "mode";
+	context.useElement = copyStringInBuffer;
+	context.expectedType = ContextStringType;
+	getObjectElement(&context);
+	if (strncmp("normal", temp, sizeof(temp)) == 0)
+		grid->jumpingMines = false;
+	else if (strncmp("jumping", temp, sizeof(temp)) == 0)
+		grid->jumpingMines = true;
+	else {
+		sprintf(context.error, "Invalid mode \'%s\'. Expected 'normal' or 'jumping'", temp);
+		longjmp(context.jumpBuffer, true);
+	}
+
+	context.data = &grid->size;
+	context.index = "map_size";
+	context.useElement = getUintVector;
+	context.expectedType = ContextObjType;
+	getObjectElement(&context);
+	if (grid->size.x > 159 || grid->size.y > 159) {
+		sprintf(context.error, "Map size must be in range 0-159\n");
+		longjmp(context.jumpBuffer, true);
+	}
+
+	context.data = &grid->boxSize;
+	context.index = "box_size";
+	context.useElement = getUintVector;
+	context.expectedType = ContextObjType;
+	getObjectElement(&context);
+	if (grid->boxSize.x < 16 || grid->boxSize.x > 128 || grid->boxSize.y < 16 || grid->boxSize.y > 128) {
+		sprintf(context.error, "Box size must be in range 16-128\n");
+		longjmp(context.jumpBuffer, true);
+	}
+
+	context.data = &grid->total;
+	context.index = "nb_mines";
+	context.useElement = getPositiveInteger;
+	context.expectedType = ContextIntType;
+	getObjectElement(&context);
+	if (grid->total >= grid->size.x * grid->size.y) {
+		strcpy(context.error, "Too many mines to place in this battlefield");
+		longjmp(context.jumpBuffer, true);
+	}
+
+	ParserObj_destroy(result.data);
+	return true;
+}
+
 void	getGridInfos(int argc, char **args, Grid *grid)
 {
-	int	fd;
-	char	*filePath = "gridInfos.json";
+	char	*filePath = "settings.json";
 	int	buffer;
 
 	*grid = DEFAULT_GRID;
@@ -128,10 +219,8 @@ void	getGridInfos(int argc, char **args, Grid *grid)
 			}
 		}
 	}
-	fd = open(filePath, O_RDONLY);
-	if (fd < 0) {
-		printf("%s: Cannot load grid infos. Loading default infos...\n", ERROR_BEG);
-		return;
+	if (!loadGridJson(filePath, grid)) {
+		*grid = DEFAULT_GRID;
 	}
 }
 

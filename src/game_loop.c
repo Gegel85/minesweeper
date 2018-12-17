@@ -67,10 +67,10 @@ void	manageEvents()
 	}
 }
 
-void displayShadedRect(int additionalLayers, sfColor color, sfVector2f pos, sfVector2f size)
+void displayShadedRect(int additionalLayers, sfColor color, sfVector2f pos, sfVector2u size)
 {
 	for (int i = 0; i <= additionalLayers; i++) {
-		sfRectangleShape_setSize(game.resources.rect, size);
+		sfRectangleShape_setSize(game.resources.rect, (sfVector2f){size.x, size.y});
 		sfRectangleShape_setFillColor(game.resources.rect, color);
 		sfRectangleShape_setPosition(game.resources.rect, pos);
 		sfRenderWindow_drawRectangleShape(game.resources.window, game.resources.rect, NULL);

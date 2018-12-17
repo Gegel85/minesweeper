@@ -5,6 +5,24 @@ set(CMAKE_C_STANDARD 99)
 
 include_directories(include)
 include_directories(lib/concatf/include)
+include_directories(lib/configParser/include)
+
+add_library(
+	configParser
+	lib/configParser/include/concatf.h
+	lib/configParser/include/configParser.h
+	lib/configParser/sources/arrays.c
+	lib/configParser/sources/bools.c
+	lib/configParser/sources/data.c
+	lib/configParser/sources/debug.c
+	lib/configParser/sources/dicts.c
+	lib/configParser/sources/dumper.c
+	lib/configParser/sources/floats.c
+	lib/configParser/sources/ints.c
+	lib/configParser/sources/lists.c
+	lib/configParser/sources/parser.c
+	lib/configParser/sources/strings.c
+)
 
 add_library(
 	concatf
@@ -25,17 +43,20 @@ add_library(
 	lib/concatf/sources/str.c
 	lib/concatf/sources/sub_strings.c
 	lib/concatf/sources/uint_to_str.c
-	include/grid.h)
+)
 
 add_executable(
 	minesweeper
 	icon.rc
+	include/grid.h
 	include/configs.h
 	include/game.h
 	include/globals.h
 	include/typedef.h
 	src/globals.c
 	src/main.c
+	src/context_callbacks.c
+	include/context.h
 	src/sighandlers.c
 	include/array.h
 	include/macros.h
@@ -44,7 +65,10 @@ add_executable(
 	include/discord_rp.h
 	include/display_messagebox.h
 	src/disp_msg.c
-	include/utils.h src/game_loop.c src/grid_mgr.c)
+	include/utils.h
+	src/game_loop.c
+	src/grid_mgr.c
+)
 
 target_link_libraries(
 	${PROJECT_NAME}
@@ -54,6 +78,7 @@ target_link_libraries(
 	csfml-system
 	csfml-window
 	csfml-network
+	configParser
 	concatf
 	m
 )

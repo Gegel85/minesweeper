@@ -75,7 +75,7 @@ enum	spriteIndex	{
 	});\
 	sfRenderWindow_drawSprite(game.resources.window, sprite_struct.sprite, NULL)
 
-#define DEFAULT_GRID	(Grid){false, (sfVector2u){40, 40}, (sfVector2f){20, 20}, 250}
+#define DEFAULT_GRID	(Grid){false, (sfVector2u){40, 40}, (sfVector2u){20, 20}, 250}
 
 #define ALLOC_ERROR_MSG		"An error occurred when trying to reserve memory.\n\
 If you are playing on a low memory machine, this can cause this kind of error.\n\
