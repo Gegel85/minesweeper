@@ -13,6 +13,7 @@
 #include <utils.h>
 #include "globals.h"
 #include <fcntl.h>
+#include <limits.h>
 #include <context.h>
 
 #if defined _WIN32 || defined __WIN32 || defined __WIN32__
@@ -82,11 +83,13 @@ Sprite	loadSprite(char *path)
 	return sprite;
 }
 
+extern int copySize;
+
 bool	loadGridJson(char *path, Grid *grid)
 {
 	ParserResult	result = Parser_parseFile(path, NULL);
 	char		*buffer;
-	char		temp[32];
+	static char	temp[PATH_MAX];
 	Context		context;
 
 	if (result.error) {
@@ -122,6 +125,7 @@ bool	loadGridJson(char *path, Grid *grid)
 	context.onUseFail = LONG_JUMP;
 	context.object = result.data;
 
+	copySize = 32;
 	memset(temp, 0, sizeof(temp));
 	context.data = temp;
 	context.index = "mode";
@@ -166,6 +170,15 @@ bool	loadGridJson(char *path, Grid *grid)
 		strcpy(context.error, "Too many mines to place in this battlefield");
 		longjmp(context.jumpBuffer, true);
 	}
+
+	copySize = PATH_MAX;
+	memset(temp, 0, sizeof(temp));
+	context.data = temp;
+	context.index = "assets";
+	context.useElement = copyStringInBuffer;
+	context.expectedType = ContextStringType;
+	getObjectElement(&context);
+	SPRITES[OBJECTS_SPRITE].path = temp;
 
 	ParserObj_destroy(result.data);
 	return true;

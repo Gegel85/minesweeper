@@ -28,6 +28,10 @@ box_size:	Positive integer vector in range 16-128
 The size of one box in pixels. A box can't be smaller than 16px and bigger that 128px.
 Default: (20, 20)
 
+assets:		String
+The assets used the render objects. It must be path to a image.
+Default: "data/objects.png"
+
 
 If anything prevents the file be to be completely loaded (invalid values, invalid json format file, ...),
 all settings are discarded and default values are used instead.

@@ -57,9 +57,6 @@ enum	spriteIndex	{
 #define HUD_POS		60
 
 #define ICON_PATH	"data/icon.png"
-#define SPRITES		(struct{char *path;sfVector2u size;}[]) {\
-	{"data/objects.png", {16, 16}}\
-}
 
 #define loaded_sprites	((Sprite *)game.resources.sprite.content)
 

@@ -8,5 +8,6 @@
   "box_size": {
     "x": 20,
     "y": 20
-  }
+  },
+  "assets": "data/objects2.png"
 }

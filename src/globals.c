@@ -6,3 +6,6 @@
 #include "typedef.h"
 
 game_t	game;
+struct{char *path;sfVector2u size;} SPRITES[1] = {
+	{"data/objects.png", {16, 16}}
+};
