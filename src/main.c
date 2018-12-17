@@ -176,6 +176,7 @@ void	getGridInfos(int argc, char **args, Grid *grid)
 	char	*filePath = "settings.json";
 	int	buffer;
 
+	memset(grid, 0, sizeof(*grid));
 	*grid = DEFAULT_GRID;
 	if (argc == 2 + game.debug)
 		filePath = args[1 + game.debug];

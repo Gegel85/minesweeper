@@ -1,5 +1,5 @@
 {
-  "mode": "jumping",
+  "mode": "normal",
   "nb_mines": 250,
   "map_size": {
     "x": 40,

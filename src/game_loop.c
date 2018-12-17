@@ -54,15 +54,29 @@ void	manageMouseClick(sfMouseButtonEvent *event)
 	}
 }
 
+void	allocGrid(Grid *grid);
+void	getGridInfos(int argc, char **args, Grid *grid);
+
 void	manageEvents()
 {
 	sfEvent	event;
+	bool	keyPressed = false;
 
 	while (sfRenderWindow_pollEvent(game.resources.window, &event)) {
 		if (event.type == sfEvtClosed) {			//The user clicked the red cross
 			sfRenderWindow_close(game.resources.window);	//Close the window
 		} else if (event.type == sfEvtMouseButtonPressed) {
 			manageMouseClick(&event.mouseButton);
+		} else if (event.type == sfEvtKeyPressed) {
+			if (keyPressed)
+				continue;
+			keyPressed = true;
+			if (dispMsg("Reload ?", "Do you want to reload settings from file settings.json ?", MB_YESNO) == IDYES) {
+				free(*game.grid.grid);
+				free(game.grid.grid);
+				getGridInfos(0, NULL, &game.grid);
+				allocGrid(&game.grid);
+			}
 		}
 	}
 }
