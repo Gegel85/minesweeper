@@ -33,21 +33,23 @@ void	manageMouseClick(sfMouseButtonEvent *event)
 
 	if (!clock)
 		clock = sfClock_create();
-	if (game.grid.isGenerated && game.grid.grid[(int)(event->x / BOX_SIZE.x)][(int)(event->y / BOX_SIZE.y)] & OPENED) {
-		if (sfTime_asSeconds(sfClock_getElapsedTime(clock)) < 0.5 && numberOfFlagsAround(event->x / BOX_SIZE.x, event->y / BOX_SIZE.y) == game.grid.grid[(int)(event->x / BOX_SIZE.x)][(int)(event->y / BOX_SIZE.y)] >> 2)
-			openAdjacentBoxs(event->x / BOX_SIZE.x, event->y / BOX_SIZE.y);
+	if (event->y < HUD_POS)
+		return;
+	if (game.grid.isGenerated && game.grid.grid[(int)(event->x / BOX_SIZE.x)][(int)((event->y - HUD_POS) / BOX_SIZE.y)] & OPENED) {
+		if (sfTime_asSeconds(sfClock_getElapsedTime(clock)) < 0.5 && numberOfFlagsAround(event->x / BOX_SIZE.x, (event->y - HUD_POS) / BOX_SIZE.y) == game.grid.grid[(int)(event->x / BOX_SIZE.x)][(int)((event->y - HUD_POS) / BOX_SIZE.y)] >> 2)
+			openAdjacentBoxs(event->x / BOX_SIZE.x, (event->y - HUD_POS) / BOX_SIZE.y);
 		sfClock_restart(clock);
 	} else {
 		if (
 			event->button == sfMouseLeft &&
 			(
-				((game.grid.grid[(int)(event->x / BOX_SIZE.x)][(int)(event->y / BOX_SIZE.y)] >> 2) != FLAG) ||
+				((game.grid.grid[(int)(event->x / BOX_SIZE.x)][(int)((event->y - HUD_POS) / BOX_SIZE.y)] >> 2) != FLAG) ||
 				(!game.grid.isGenerated)
 			)
 		) {
-			openGridBox((int)(event->x / BOX_SIZE.x), (int)(event->y / BOX_SIZE.y));
-		} else if (game.grid.isGenerated && event->button == sfMouseRight && !(game.grid.grid[(int)(event->x / BOX_SIZE.x)][(int)(event->y / BOX_SIZE.y)] & OPENED)){
-			changeBoxContent((int)(event->x / BOX_SIZE.x), (int)(event->y / BOX_SIZE.y));
+			openGridBox((int)(event->x / BOX_SIZE.x), (int)((event->y - HUD_POS) / BOX_SIZE.y));
+		} else if (game.grid.isGenerated && event->button == sfMouseRight && !(game.grid.grid[(int)(event->x / BOX_SIZE.x)][(int)((event->y - HUD_POS) / BOX_SIZE.y)] & OPENED)){
+			changeBoxContent((int)(event->x / BOX_SIZE.x), (int)((event->y - HUD_POS) / BOX_SIZE.y));
 		}
 	}
 }
@@ -90,23 +92,77 @@ void	displayGrid()
 			sfRectangleShape_setOutlineThickness(game.resources.rect, 1);
 			sfRectangleShape_setOutlineColor(game.resources.rect, (sfColor){0, 0, 0, 255});
 			if (game.grid.grid[x][y] & OPENED) {
-				displayShadedRect(0, BG_COLORS[game.grid.grid[x][y] >> 2], (sfVector2f){x * BOX_SIZE.x, y * BOX_SIZE.y}, BOX_SIZE);
+				displayShadedRect(0, BG_COLORS[game.grid.grid[x][y] >> 2], (sfVector2f){x * BOX_SIZE.x, y * BOX_SIZE.y + HUD_POS}, BOX_SIZE);
 			} else
-				displayShadedRect(8, (sfColor){155, 155, 155, 255}, (sfVector2f){x * BOX_SIZE.x, y * BOX_SIZE.y}, BOX_SIZE);
+				displayShadedRect(8, (sfColor){155, 155, 155, 255}, (sfVector2f){x * BOX_SIZE.x, y * BOX_SIZE.y + HUD_POS}, BOX_SIZE);
 			if (game.grid.grid[x][y] >> 2 && !loaded_sprites[OBJECTS_SPRITE].sprite) {
 				char *buffer = concatf("%c", CHARACTERS[(game.grid.grid[x][y] >> 2) - 1]);
 				sfText_setString(game.resources.text, buffer);
 				sfText_setColor(game.resources.text, COLORS[(game.grid.grid[x][y] >> 2) - 1]);
 				sfText_setCharacterSize(game.resources.text, 10);
-				sfText_setPosition(game.resources.text, (sfVector2f){x * BOX_SIZE.x + 5, y * BOX_SIZE.y +1});
+				sfText_setPosition(game.resources.text, (sfVector2f){x * BOX_SIZE.x + 5, y * BOX_SIZE.y + 31});
 				sfRenderWindow_drawText(game.resources.window, game.resources.text, NULL);
 				free(buffer);
 			} else if (game.grid.grid[x][y] >> 2) {
 				setObjectRect(game.grid.grid[x][y] >> 2);
-				displaySprite(loaded_sprites[OBJECTS_SPRITE], x * BOX_SIZE.x, y * BOX_SIZE.y);
+				displaySprite(loaded_sprites[OBJECTS_SPRITE], x * BOX_SIZE.x, y * BOX_SIZE.y + HUD_POS);
 			}
 		}
 	}
+}
+
+char	*getTimeSinceStarted()
+{
+	static	char	buffer[1000];
+	long unsigned	dis_time;
+
+	memset(buffer, 0, sizeof(buffer));
+	if (!game.end)
+		dis_time = time(NULL) - game.start;
+	else
+		dis_time = game.end - game.start;
+	if (!dis_time)
+		return "0 second";
+	if (dis_time / 86400) {
+		sprintf(buffer, "%lu day%s", dis_time / 86400, dis_time / 86400 > 1 ? "s" : "");
+		dis_time %= 86400;
+	}
+	if (dis_time / 3600) {
+		sprintf(buffer, "%s %lu hour%s", buffer, dis_time / 3600, dis_time / 3600 > 1 ? "s" : "");
+		dis_time %= 3600;
+	}
+	if (dis_time / 60) {
+		sprintf(buffer, "%s %lu minute%s", buffer, dis_time / 60, dis_time / 60 > 1 ? "s" : "");
+		dis_time %= 60;
+	}
+	if (dis_time)
+		sprintf(buffer, "%s%s%lu second%s", buffer, *buffer ? " and " : "", dis_time, dis_time > 1 ? "s" : "");
+	return buffer;
+}
+
+void	displayHud()
+{
+	char	buffer[1000];
+
+	sfText_setColor(game.resources.text, (sfColor){0, 0, 0, 255});
+
+	sprintf(buffer, "Gamemode: %s\n", game.grid.jumpingMines ? "Jumping mines" : "Normal");
+	sfText_setString(game.resources.text, buffer);
+	sfText_setCharacterSize(game.resources.text, 15);
+	sfText_setPosition(game.resources.text, (sfVector2f){0, 0});
+	sfRenderWindow_drawText(game.resources.window, game.resources.text, NULL);
+
+	sprintf(buffer, "Mines founds: %u/%u\n", game.grid.flagsPlaced, game.grid.total);
+	sfText_setString(game.resources.text, buffer);
+	sfText_setCharacterSize(game.resources.text, 15);
+	sfText_setPosition(game.resources.text, (sfVector2f){0, 17});
+	sfRenderWindow_drawText(game.resources.window, game.resources.text, NULL);
+
+	sprintf(buffer, "Time spent: %s\n", game.grid.isGenerated || game.end ? getTimeSinceStarted() : "0 second");
+	sfText_setString(game.resources.text, buffer);
+	sfText_setCharacterSize(game.resources.text, 15);
+	sfText_setPosition(game.resources.text, (sfVector2f){0, 34});
+	sfRenderWindow_drawText(game.resources.window, game.resources.text, NULL);
 }
 
 void	launchGame()
@@ -114,7 +170,8 @@ void	launchGame()
 	srand(time(NULL));
 	updateDiscordPresence("Preparing", NULL, 0, false, "icon", NULL);
 	while (sfRenderWindow_isOpen(game.resources.window)) {	//If the window is closed, leave
-		sfRenderWindow_clear(game.resources.window, (sfColor){0, 0, 0, 255});
+		sfRenderWindow_clear(game.resources.window, (sfColor){205, 205, 200, 255});
+		displayHud();
 		displayGrid();
 		sfRenderWindow_display(game.resources.window);
 		manageEvents();

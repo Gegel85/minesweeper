@@ -32,6 +32,7 @@ struct	game_s {
 	Array		buttons;	//All buttons loaded
 	Array		slider;		//All slider loaded
 	time_t		start;		//The timestamp at which the game started
+	time_t		end;		//The timestamp at which the game ended
 };
 
 #endif //MINESWEEPER_GAME_H

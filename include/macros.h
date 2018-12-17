@@ -54,6 +54,7 @@ enum	spriteIndex	{
 #define CHARACTERS	"12345678XXFF?X"
 
 #define BOX_SIZE	game.grid.boxSize
+#define HUD_POS		60
 
 #define ICON_PATH	"data/icon.png"
 #define SPRITES		(struct{char *path;sfVector2u size;}[]) {\
@@ -62,8 +63,8 @@ enum	spriteIndex	{
 
 #define loaded_sprites	((Sprite *)game.resources.sprite.content)
 
-#define setObjectRect(value)		loaded_sprites[OBJECTS_SPRITE].rect.top = 0;\
-					loaded_sprites[OBJECTS_SPRITE].rect.left = ((value) - 1) * loaded_sprites[OBJECTS_SPRITE].rect.width
+#define setObjectRect(value)	loaded_sprites[OBJECTS_SPRITE].rect.top = 0;\
+				loaded_sprites[OBJECTS_SPRITE].rect.left = ((value) - 1) * loaded_sprites[OBJECTS_SPRITE].rect.width
 
 #define displaySprite(sprite_struct, x_pos, y_pos)\
 	sfSprite_setPosition(sprite_struct.sprite, (sfVector2f){x_pos + 1, y_pos + 1});\

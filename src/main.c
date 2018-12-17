@@ -168,7 +168,7 @@ void	initGame(bool debug, int argc, char **args)
 
 	printf("%s: Loading sprites\n", INFO_BEG);
 	game.resources.sprite.length = sizeof(SPRITES) / sizeof(*SPRITES);
-	game.resources.sprite.content = my_malloc(game.resources.sprite.length);
+	game.resources.sprite.content = my_malloc(game.resources.sprite.length * sizeof(Sprite));
 	for (unsigned i = 0; i < sizeof(SPRITES) / sizeof(*SPRITES); i++) {
 		loaded_sprites[i] = loadSprite(SPRITES[i].path);
 		loaded_sprites[i].rect.width = SPRITES[i].size.x;
@@ -177,7 +177,7 @@ void	initGame(bool debug, int argc, char **args)
 
 	printf("%s: Opening game window\n", INFO_BEG);
 	mode.width = game.grid.size.x * BOX_SIZE.x;
-	mode.height = game.grid.size.y * BOX_SIZE.y;
+	mode.height = game.grid.size.y * BOX_SIZE.y + HUD_POS;
 	game.resources.window = sfRenderWindow_create(mode, "Minesweeper", sfClose | sfTitlebar, NULL);
 
 	printf("%s: Setting window icon\n", INFO_BEG);

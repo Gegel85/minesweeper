@@ -11,6 +11,8 @@
 #include "macros.h"
 #include "globals.h"
 
+char	*getTimeSinceStarted();
+
 void	endGame()
 {
 	char	*array = *game.grid.grid;
@@ -18,6 +20,7 @@ void	endGame()
 	int	errors = 0;
 	char	*buffer;
 
+	game.end = time(NULL);
 	for (unsigned i = 0; i < game.grid.size.x * game.grid.size.y; i++) {
 		if (!(array[i] & OPENED) && array[i] >> 2 != FLAG && array[i] & MINE) {
 			array[i] += (MINE_REMAINING << 2) - ((array[i] >> 2) << 2);
@@ -29,7 +32,7 @@ void	endGame()
 		} else if (array[i] >> 2 == FLAG && array[i] & MINE)
 			found++;
 	}
-	buffer = concatf("%i missplaced flags, found %i mines / %i, %i seconds total", errors, found, game.grid.total, time(NULL) - game.start);
+	buffer = concatf("%i missplaced flags, found %i mines / %i, %s total", errors, found, game.grid.total, getTimeSinceStarted());
 	updateDiscordPresence("Exploded", buffer, 0, false, "icon", NULL);
 	free(buffer);
 	game.grid.isGenerated = false;
@@ -49,7 +52,7 @@ void	winGame()
 					game.grid.grid[x][y] += OPENED;
 				}
 			}
-	buffer = concatf("Found all %i mines in %i seconds", game.grid.total, time(NULL) - game.start);
+	buffer = concatf("Found all %i mines in %s", game.grid.total, getTimeSinceStarted());
 	updateDiscordPresence("Exploded", buffer, 0, false, "icon", NULL);
 	free(buffer);
 	game.grid.isGenerated = false;
@@ -64,6 +67,7 @@ void	generateGrid(int x, int y)
 	char	*buffer = concatf("Mines found: 0 of %i", game.grid.total);
 
 	game.start = time(NULL);
+	game.end = 0;
 	updateDiscordPresence("Unmining battlefield", buffer, game.start, false, "icon", NULL);
 	game.grid.flagsPlaced = 0;
 	game.grid.openedBoxes = 0;
