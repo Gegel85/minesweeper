@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <utils.h>
 #include "globals.h"
 #include "discord_rp.h"
 
@@ -56,6 +57,7 @@ void	manageMouseClick(sfMouseButtonEvent *event)
 
 void	allocGrid(Grid *grid);
 void	getGridInfos(int argc, char **args, Grid *grid);
+Sprite	loadSprite(char *path);
 
 void	manageEvents()
 {
@@ -77,6 +79,15 @@ void	manageEvents()
 				free(game.grid.grid);
 				getGridInfos(0, NULL, &game.grid);
 				allocGrid(&game.grid);
+
+				printf("%s: Loading sprites\n", INFO_BEG);
+				for (unsigned i = 0; i < sizeof(SPRITES) / sizeof(*SPRITES); i++) {
+					sfSprite_destroy(loaded_sprites[i].sprite);
+					sfTexture_destroy(loaded_sprites[i].texture);
+					loaded_sprites[i] = loadSprite(SPRITES[i].path);
+					loaded_sprites[i].rect.width = SPRITES[i].size.x;
+					loaded_sprites[i].rect.height = SPRITES[i].size.y;
+				}
 
 				sfRenderWindow_destroy(game.resources.window);
 				printf("%s: Opening game window\n", INFO_BEG);

@@ -143,6 +143,10 @@ bool	getDuppedString(ParserObj *obj, void *data, char *err_buffer)
 bool	copyStringInBuffer(ParserObj *obj, void *data, char *err_buffer)
 {
 	(void)err_buffer;
+	if (strlen(ParserString_toCharStar(obj->data)) >= copySize) {
+		sprintf(err_buffer, "Given string is too long\n");
+		return false;
+	}
 	strncpy(data, ParserString_toCharStar(obj->data), copySize);
 	return (true);
 }
