@@ -59,8 +59,9 @@ void	getGridInfos(int argc, char **args, Grid *grid);
 
 void	manageEvents()
 {
-	sfEvent	event;
-	bool	keyPressed = false;
+	sfEvent		event;
+	bool		keyPressed = false;
+	sfVideoMode	mode;
 
 	while (sfRenderWindow_pollEvent(game.resources.window, &event)) {
 		if (event.type == sfEvtClosed) {			//The user clicked the red cross
@@ -76,6 +77,18 @@ void	manageEvents()
 				free(game.grid.grid);
 				getGridInfos(0, NULL, &game.grid);
 				allocGrid(&game.grid);
+
+				sfRenderWindow_destroy(game.resources.window);
+				printf("%s: Opening game window\n", INFO_BEG);
+				mode.width = game.grid.size.x * BOX_SIZE.x;
+				mode.height = game.grid.size.y * BOX_SIZE.y + HUD_POS;
+				game.resources.window = sfRenderWindow_create(mode, "Minesweeper", sfClose | sfTitlebar, NULL);
+
+				printf("%s: Setting window icon\n", INFO_BEG);
+				if (game.resources.icon) {
+					sfVector2u	size = sfImage_getSize(game.resources.icon);
+					sfRenderWindow_setIcon(game.resources.window, size.x, size.y, sfImage_getPixelsPtr(game.resources.icon));
+				}
 			}
 		}
 	}
