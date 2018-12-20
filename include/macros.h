@@ -67,8 +67,8 @@ enum	spriteIndex	{
 	sfSprite_setPosition(sprite_struct.sprite, (sfVector2f){x_pos + 1, y_pos + 1});\
 	sfSprite_setTextureRect(sprite_struct.sprite, sprite_struct.rect);\
 	sfSprite_setScale(sprite_struct.sprite, (sfVector2f){\
-		(BOX_SIZE.x - 3) / loaded_sprites[OBJECTS_SPRITE].rect.width,\
-		(BOX_SIZE.y - 3) / loaded_sprites[OBJECTS_SPRITE].rect.height\
+		(float)(BOX_SIZE.x - 3) / loaded_sprites[OBJECTS_SPRITE].rect.width,\
+		(float)(BOX_SIZE.y - 3) / loaded_sprites[OBJECTS_SPRITE].rect.height\
 	});\
 	sfRenderWindow_drawSprite(game.resources.window, sprite_struct.sprite, NULL)
 

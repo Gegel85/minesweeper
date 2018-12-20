@@ -240,6 +240,18 @@ void	updateBoxesIndicator()
 	}
 }
 
+bool	allMinesFlagged()
+{
+	char	*array = *game.grid.grid;
+
+	for (unsigned i = 0; i < game.grid.size.x * game.grid.size.y; i++)
+		if (array[i] & MINE && array[i] >> 2 != FLAG)
+			return false;
+		else if (!(array[i] & MINE) && array[i] >> 2 == FLAG)
+			return false;
+	return true;
+}
+
 void	changeBoxContent(int x, int y)
 {
 	if (game.grid.grid[x][y] >> 2 == NOTHING) {
@@ -248,7 +260,7 @@ void	changeBoxContent(int x, int y)
 		updateDiscordPresence("Unmining battlefield", buffer, game.start, false, "icon", NULL);
 		free(buffer);
 		game.grid.grid[x][y] += FLAG << 2;
-		if (game.grid.flagsPlaced == game.grid.total) {
+		if (game.grid.flagsPlaced == game.grid.total && allMinesFlagged()) {
 			for (unsigned x = 0; x < game.grid.size.x; x++)
 				for (unsigned y = 0; y < game.grid.size.y; y++)
 					if (!(game.grid.grid[x][y] & OPENED) && game.grid.grid[x][y] >> 2 != FLAG) {
