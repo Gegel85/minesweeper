@@ -15,12 +15,12 @@
 #include <fcntl.h>
 #include <limits.h>
 #include <context.h>
+#include <configParser.h>
+#include <concatf.h>
 
 #if defined _WIN32 || defined __WIN32 || defined __WIN32__
 
 #include <windows.h>
-#include <configParser.h>
-#include <concatf.h>
 
 void	setSignalHandler()
 {
@@ -243,7 +243,7 @@ void	allocGrid(Grid *grid)
 	grid->grid = my_malloc(grid->size.x * sizeof(*grid->grid));				//We create a double array
 	*grid->grid = my_malloc(grid->size.x * grid->size.y * sizeof(**grid->grid));		//We reserve all the memory we need
 	memset(*grid->grid, NO_MINE, grid->size.x * grid->size.y * sizeof(**grid->grid));	//We init the whole grid to the NO_MINE state
-	for (unsigned i = 0; i < grid->size.x; i++)							//Now we split the big chunk of memory
+	for (unsigned i = 0; i < grid->size.x; i++)						//Now we split the big chunk of memory
 		grid->grid[i] = &(*grid->grid)[i * grid->size.y];				//To be used as a double array later
 }
 
